@@ -2436,6 +2436,16 @@ DEVICES += [{
         # BoolConv("status", "binary_sensor", mi="2.p.1004"),
     ]
 }, {
+    20809: ["LeMesh", "Scene Wireless Button S", "lemesh.remote.ts00"],
+    "spec": [
+        BaseConv("action", "sensor"),
+        MapConv("action", mi="5.e.1012.p.1", map={1: BUTTON_SINGLE}),
+        MapConv("action", mi="5.e.1013.p.1", map={1: BUTTON_DOUBLE}),
+        MapConv("action", mi="5.e.1014.p.1", map={1: BUTTON_HOLD}),
+        BaseConv("battery", "sensor", mi="4.p.1003"),
+        MapConv("button_mode", "select", mi="5.p.1020", map={0: "Quick Single Click", 1: "Multiple Click"}),
+    ]
+}, {
     # BLE devices can be supported witout spec. New spec will be added "on the fly" when
     # device sends them. But better to rewrite right spec for each device
     "default": "ble",  # default BLE device
@@ -3973,16 +3983,6 @@ DEVICES += [{
         MapConv("middle_switch_indicator_light_mode", "select", mi="16.p.2", map={0: "Follow", 1: "Opposite", 2: "Off", 3: "On"}),
         MapConv("right_switch_indicator_light_mode", "select", mi="16.p.3", map={0: "Follow", 1: "Opposite", 2: "Off", 3: "On"}),
         BaseConv("ambient_light", "switch", mi="17.p.1"),
-    ]
-},{
-    20809: ["LeMesh", "Scene Wireless Button S", "lemesh.remote.ts00"],
-    "spec": [
-        BaseConv("action", "sensor"),
-        MapConv("action", mi="5.e.1012.p.1", map={1: BUTTON_SINGLE}),
-        MapConv("action", mi="5.e.1013.p.1", map={1: BUTTON_DOUBLE}),
-        MapConv("action", mi="5.e.1014.p.1", map={1: BUTTON_HOLD}),
-        BaseConv("battery", "sensor", mi="4.p.1003"),
-        MapConv("button_mode", "select", mi="5.p.1020", map={0: "Quick Single Click", 1: "Multiple Click"}),
     ]
 }, {
     9609: ["Bean", "Mesh Single Wall Switch (L)", "bean.switch.bl01"],
