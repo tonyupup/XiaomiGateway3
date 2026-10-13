@@ -606,6 +606,18 @@ DEVICES += [{
         # ZBatteryVoltConv("battery", bind=True, report=True),
     ],
 }, {
+    "lumi.magnet.ac01": ["Aqara", "Door/Window Sensor P1", "MCCGQ13LM"],
+    "spec": [
+        ZIASZoneConv("contact", "binary_sensor"),
+        ZLumiMagnetTamperConv("tamper", "binary_sensor"),
+        ZLumiMagnetBatteryConv("battery", "sensor", entity=ENTITY_LAZY),
+        BaseConv("battery_voltage", "sensor", entity=ENTITY_LAZY),
+        ZLumiMagnetDetectionDistanceConv("detection_distance", "select", entity=ENTITY_CONFIG),
+        MapConv("action", "sensor", mi="4.p.1", map={1: "single"}, entity=ENTITY_DISABLED),
+        # MIoT open-time in seconds; do not synthesize a reset on closing.
+        NotifyConv("open_time", "sensor", mi="5.p.1", entity=ENTITY_DISABLED),
+    ],
+}, {
     "lumi.magnet.acn001": ["Aqara", "Door/Window Sensor E1 CN", "MCCGQ14LM"],
     "spec": [
         MapConv("contact", "binary_sensor", mi="2.p.1", map={0: True, 1: False}),
@@ -1488,7 +1500,16 @@ DEVICES += [{
         BLEByteConv("supply", "sensor", mi=4115),  # uint8, Remaining percentage, range 0~100
         BLEToothbrush("toothbrush", mi=16),
     ],
-}, { 
+}, {
+    2054: ["Xiaomi", "Toothbrush T700", "MES604", "k0918.toothbrush.t700"],
+    6032: ["Xiaomi", "Toothbrush T700i", "MES604", "k0918.toothbrush.t700i"],
+    "spec": [
+        BaseConv("action", "sensor"),
+        BLEByteConv("battery", "sensor", mi=4106),
+        BLEByteConv("supply", "sensor", mi=4115),
+        BLEToothbrush("toothbrush", mi=12291),
+    ],
+}, {
    # MIOT https://home.miot-spec.com/spec?type=urn:miot-spec-v2:device:printer:0000A060:xiaomi-label:1
    13566: ["Xiaomi", "Label printer", "MJBQDYJ1-WC", "xiaomi.printer.label"], 
    "spec": [
@@ -1563,6 +1584,28 @@ DEVICES += [{
     ],
     # "ttl": "60m",  # battery every 4:30 min
 }, {
+    31418: ["Xiaomi", "Smoke Alarm 2", "xiaomi.sensor_smoke.yg2"],
+    # https://home.miot-spec.com/spec/xiaomi.sensor_smoke.yg2
+    "spec": [
+        # miot spec
+        MapConv("smoke", "binary_sensor", mi="2.p.1004", map={1: False, 2: True}),
+        MapConv("status", "sensor", mi="2.p.1004", map={1: "normal", 2: "smoke_alarm", 4: "fault", 5: "dust", 6: "high_temp"}, entity={"category": "diagnostic"}),  # diagnostic, enabled
+        MapConv("battery_low", "binary_sensor", mi="6.p.1132", map={0: False, 1: True}, entity={"category": "diagnostic", "enabled": False}),  # diagnostic, disabled
+        MapConv("battery_state", "sensor", mi="6.p.1132", map={0: "full", 1: "low"}, entity={"category": "diagnostic"}),  # diagnostic, enabled
+        BoolConv("mute", "binary_sensor", mi="2.p.1059"),
+        MapConv("sensitivity", "sensor", mi="2.p.1054", map={0: "high", 1: "standard", 2: "low"}, entity={"category": "diagnostic", "enabled": False}),  # diagnostic, disabled
+        BaseConv("heartbeat_led", "sensor", mi="4.p.1", entity={"category": "diagnostic", "enabled": False}),  # diagnostic, disabled
+        BaseConv("temperature", "sensor", mi="2.e.1017.p.1001"),
+        BaseConv("temperature", mi="2.p.1001"),  # update param without entity
+        BaseConv("smoke_duration", "sensor", mi="2.e.1017.p.1130", entity={"icon": "mdi:timer", "units": "s"}),
+        BaseConv("smoke_duration", mi="2.p.1130"),  # update param without entity
+        MapConv("action", "sensor", mi="2.e.1017.p.8", map={0: "smoke_alarm", 1: "smoke_high_temp_alarm", 2: "smoke_diff_temp_alarm", 3: "smoke_alarm_cleared", 4: "high_temp_alarm", 5: "fault", 6: "fault_cleared", 7: "dust_accumulation", 8: "dust_cleared", 9: "temp_refresh", 10: "normal_heartbeat", 11: "temp_normal", 12: "paired_normal"}),
+        # BaseConv("custom_property_3", "sensor", mi="8.p.1077", entity={"category": "diagnostic", "enabled": False}),  # diagnostic, disabled
+        # BaseConv("custom_property_5", "sensor", mi="8.p.1094", entity={"category": "diagnostic", "enabled": False}),  # diagnostic, disabled
+        ConstConv("action", mi="2.e.1028", value="reset"),  # device-be-reset
+        ConstConv("action", mi="6.e.1001", value="low_battery"),  # low-battery event
+    ],
+}, {
     # https://github.com/AlexxIT/XiaomiGateway3/issues/180
     2701: ["Xiaomi", "Motion Sensor 2", "RTCGQ02LM", "lumi.motion.bmgl01"],  # 15,4119,4120,4123
     "spec": [
@@ -1607,6 +1650,16 @@ DEVICES += [{
         MapConv("action", mi="5.e.1014.p.1", map={1: BUTTON_1_HOLD, 2: BUTTON_2_HOLD, 3: BUTTON_3_HOLD, 4: BUTTON_4_HOLD, 5: "button_5_hold", 6: "button_6_hold", 7: "button_7_hold", 8: "button_8_hold"}),
         BaseConv("battery", "sensor", mi="4.p.1003"),
         MapConv("button_mode", "select", mi="3.p.1020", map={0: "Multiple Click", 1: "Quick Single Click"}),
+    ],
+}, {
+    39609: ["Xiaomi", "Mijia Smart TH Monitor 3 Pro", "MJWSD07MMC", "xiaomi.sensor_ht.new3pr"],
+    "spec": [
+        MathConv("temperature", "sensor", mi="7.p.1001", round=1),
+        BaseConv("humidity", "sensor", mi="7.p.1002"),
+        BaseConv("battery", "sensor", mi="4.p.1003", entity=ENTITY_LAZY),
+        BaseConv("co_two", "sensor", mi="8.p.1029"),
+        BaseConv("action", "sensor"),
+        ConstConv("action", mi="4.e.1001", value="low_battery"),
     ],
 }]
 
@@ -2446,6 +2499,12 @@ DEVICES += [{
         MapConv("door", "sensor", mi="3.p.1021", map={16: "locked", 32: "unlocked", 64: "ajar"}),
         BaseConv("battery", "sensor", mi="4.p.1003"),
         ConstConv("action", mi="5.e.1006", value="doorbell"),
+        # mibeacon spec (gateway fw 1.5.0 sends raw eid instead of miot spec)
+        BLELockAction("action", mi=18964),
+        BLELockError("action", mi=18951),
+        BLELockDoorbell("action", mi=22022),
+        BLEMapConv("door", mi=19477, map={"10": "locked", "20": "unlocked", "40": "ajar"}),
+        BLEByteConv("battery", mi=20483),
     ],
 }, {
     3581: ["Linptech", "Wireless Button", "linp.remote.k9b"],
@@ -2558,7 +2617,6 @@ DEVICES += [{
     # https://github.com/AlexxIT/XiaomiGateway3/issues/1001
     1203: ["Dessmann ", "Q3", "dsm.lock.q3"],
     1433: ["Xiaomi", "Door Lock", "MJZNMS03LM", "lumi.lock.bzacn2"],
-    2054: ["Xiaomi", "Toothbrush T700", "MES604", "k0918.toothbrush.t700"],
     # https://github.com/AlexxIT/XiaomiGateway3/issues/657
     2444: ["Lockin", "Door Lock", "XMZNMST02YD", "loock.lock.t1"],
     2480: ["Lockin", "Safe Box", "BGX-5/X1-3001", "loock.safe.v1"],
@@ -2569,7 +2627,6 @@ DEVICES += [{
     3685: ["Xiaomi", "Face Recognition Smart Door Lock X", "XMZNMS06LM", "lumi.lock.bmcn05"],
     # https://github.com/AlexxIT/XiaomiGateway3/issues/1156
     3899: ["Lockin", "Door Lock", "XMZNMSTO3YD", "loock.lock.t1pro"],
-    6032: ["Xiaomi", "Toothbrush T700i", "MES604", "k0918.toothbrush.t700i"],
     "spec": [
         # https://iot.mi.com/new/doc/accesses/direct-access/embedded-development/ble/object-definition
         # old link: https://iot.mi.com/new/doc/embedded-development/ble/object-definition
@@ -5893,6 +5950,40 @@ DEVICES += [{
         MapConv("action", mi="2.e.1014.p.2", map={1: BUTTON_1_HOLD, 2: BUTTON_2_HOLD, 3: BUTTON_3_HOLD, 4: BUTTON_4_HOLD}),
         ConstConv("action", mi="2.e.1028", value="reset"),  # device-be-reset
         BaseConv("battery", "sensor", mi="4.p.1003", entity=ENTITY_LAZY)
+    ],
+}, {
+    # https://home.miot-spec.com/spec/jdjz.switch.jzl1
+    32826: ["JD", "Single Wall Switch (no N)", "jdjz.switch.jzl1"],
+    "spec": [
+        BaseConv("switch", "switch", mi="2.p.1"),
+        BaseConv("action", "sensor"),
+        ConstConv("action", mi="5.e.1", value=BUTTON_1_SINGLE),
+        ConstConv("action", mi="5.e.2", value=BUTTON_1_DOUBLE),
+        ConstConv("action", mi="5.e.3", value=BUTTON_1_HOLD),
+    ],
+}, {
+    # https://home.miot-spec.com/spec/jdjz.switch.jzl2
+    32825: ["JD", "Double Wall Switch (no N)", "jdjz.switch.jzl2"],
+    "spec": [
+        BaseConv("switch_1", "switch", mi="2.p.1"),
+        BaseConv("switch_2", "switch", mi="3.p.1"),
+        BaseConv("action", "sensor"),
+        ConstConv("action", mi="5.e.1", value=BUTTON_1_SINGLE),
+        ConstConv("action", mi="5.e.2", value=BUTTON_1_DOUBLE),
+        ConstConv("action", mi="5.e.3", value=BUTTON_1_HOLD),
+        ConstConv("action", mi="6.e.1", value=BUTTON_2_SINGLE),
+        ConstConv("action", mi="6.e.2", value=BUTTON_2_DOUBLE),
+        ConstConv("action", mi="6.e.3", value=BUTTON_2_HOLD),
+    ],
+}, {
+    21641: ["Xiaomi", "Mesh Downlight 2", "xiaomi.light.btlm2"],
+    "spec": [
+        BaseConv("light", "light", mi="2.p.1"),
+        BrightnessConv("brightness", mi="2.p.2", max=100),
+        ColorTempKelvin("color_temp", mi="2.p.3", mink=2700, maxk=5700),
+        MapConv("mode", "select", mi="2.p.7", map={0: "None", 1: "Lighting", 2: "TV", 3: "Warmth", 4: "Night Light"}),
+        BoolConv("flex_switch", "switch", mi="2.p.12"),
+        MapConv("power_on_state", "select", mi="2.p.17", map={0: "On", 1: "Default", 2: "Off"}),
     ],
 }, {
     "default": "mesh",  # default Mesh device
